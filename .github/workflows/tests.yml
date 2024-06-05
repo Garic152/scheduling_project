@@ -14,10 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Dependencies
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends clang make
+        # run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends clang make
       - name: Build files
         run: make
       - name: Run tests
-        run: make all_tests | tee test_results.txt
-      - name: Print test results
-        run: cat test_results.txt
+        run: make all_tests
