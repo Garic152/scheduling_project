@@ -12,9 +12,7 @@ int main() {
   /*Defining the processes                Arrival Dur.    Prio    ID
                                           uint    uint    uint    char*/
   process processes[PROCESS_COUNT] = {
-      {0, 4, 2, 'A'},  {6, 3, 8, 'B'},  {7, 5, 7, 'C'},
-      {8, 2, 1, 'D'},  {12, 3, 9, 'E'}, {13, 9, 6, 'F'},
-      {14, 1, 3, 'G'}, {15, 5, 5, 'H'}, {16, 4, 10, 'I'}};
+      {0, 5, 2, 'A'}, {1, 5, 8, 'B'}, {2, 5, 7, 'C'}, {3, 5, 1, 'D'}};
 
   char *expected_result = "AAAA  BBBDDCCCCCGEEEHHHHHIIIIFFFFFFFFF";
 
