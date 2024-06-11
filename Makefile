@@ -1,3 +1,5 @@
+#!/bin/bash
+SHELL := /bin/bash
 BUILD_DIR = build
 
 EXERCISE_SRC = src/colors.c \
@@ -34,10 +36,27 @@ all_tests: $(TEST_OBJ)   # Run all tests
 	@echo "| Running all Tests |"
 	@echo "+-------------------+"
 	@echo " "
-	@for test in $(TEST_TARGET) ; do \
-		make --no-print-directory $$test; \
-		echo " "; \
-	done
+	@runs=0; \
+	@fails=0; \
+	summary_file=$$(mktemp); \
+	for test in $(TEST_TARGET); do \
+		runs=$$((runs + 1)); \
+		if make --no-print-directory $$test ; then \
+			echo "echo -e \"\033[0;32mPASSED\033[0m --- $$test\"" >> $$summary_file; \
+		else \
+			echo "echo -e \"\033[0;31mFAILED\033[0m --- $$test\"" >> $$summary_file; \
+			fails=$$((fails + 1)); \
+		fi; \
+	done; \
+	echo "--- SUMMARY ---"; \
+	source $$summary_file; \
+	rm -f $$summary_file; \
+	echo "---"; \
+	if (( fails != 0 )) ; then \
+		echo -e "\033[0;31mFAILED\033[0m $$fails/$$runs"; \
+	fi; \
+	echo -e "\033[0;32mPASSED\033[0m $$((runs - fails))/$$runs"; \
+	exit $$fails
 
 .PHONY: list_tests
 list_tests:
@@ -54,8 +73,13 @@ BASH_COLOR_GREEN = \033[32m
 .PHONY: $(TEST_TARGET)   # Run a specific test
 $(TEST_TARGET): %: $(BUILD_DIR)/tests/%
 	@echo ">>> Running $<"
-	@./$< && echo -e "<<< $(BASH_COLOR_GREEN)OK$(BASH_COLOR_NONE)" \
-		|| echo -e "<<< $(BASH_COLOR_RED)FAILED$(BASH_COLOR_NONE)"
+	@test_exec=0; ./$< || test_exec=$$?; \
+	if [ $$test_exec -eq 0 ]; then \
+	    echo -e "<<< $(BASH_COLOR_GREEN)OK$(BASH_COLOR_NONE)"; \
+	else \
+	    echo -e "<<< $(BASH_COLOR_RED)FAILED$(BASH_COLOR_NONE)"; \
+	fi; \
+	exit $$test_exec
 
 
 $(EXERCISE_OBJ): $(BUILD_DIR)/%.o: %.c
