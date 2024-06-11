@@ -18,7 +18,7 @@ TEST_SRC = $(wildcard $(TEST_DIR)/test_*.c)
 TEST_OBJ = $(addprefix $(BUILD_DIR)/, $(TEST_SRC:%.c=%))
 TEST_TARGET = $(notdir $(TEST_OBJ))
 
-CC = clang-16
+CC = clang
 CC_FLAGS = -Wall -Wextra -g -gdwarf-4
 
 .PHONY: build
