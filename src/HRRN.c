@@ -56,9 +56,9 @@ float response_ratio(process *p) {
   if (init_time == -1) {
     // fprintf(stderr, "Did not find arrival time for process ID: %c", p->id);
   }
-
+  int start_time = p->start_time + 1;
   int waiting_time =
-      (current_time - p->start_time) - (init_time - p->time_left);
+      (current_time - start_time) - (init_time - p->time_left);
   printf("Response-Ratio for process %c is: %.2f\n", p->id,
          (waiting_time + p->time_left) / (float)p->time_left);
 
@@ -85,13 +85,16 @@ void HRRN_sort_queue() {
       prev = nextNode;
     } else if (response_ratio(current->object) ==
                response_ratio(nextNode->object)) {
-      if (((process *)(current->object))->start_time >
+      if (((process *)(current->object))->start_time <
           ((process *)(nextNode->object))->start_time) {
         prev->next = nextNode;
         current->next = nextNode->next;
         nextNode->next = current;
 
         prev = nextNode;
+      } else {
+        prev = current;
+        current = nextNode;
       }
     } else {
       prev = current;
