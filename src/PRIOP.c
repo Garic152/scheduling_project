@@ -17,7 +17,9 @@ void PRIOP_sort_queue()
   while (current->next != NULL) {
     nextNode = current->next;
 
-    if (((process *)(current->object))->priority < ((process *)(nextNode->object))->priority) {
+    printf("\n%c, ((process *p)())");
+
+    if (((process *)(current->object))->priority > ((process *)(nextNode->object))->priority) {
       prev->next = nextNode;
       current->next = nextNode->next;
       nextNode->next = current;
@@ -30,7 +32,7 @@ void PRIOP_sort_queue()
   }
 }
 
-process *select_last(process *running_process) {
+process *select_last() {
   if (PRIOP_queue->next == NULL) {
     return NULL;
   }
@@ -38,7 +40,7 @@ process *select_last(process *running_process) {
 	while (iterator->next != NULL) {
 		iterator = iterator->next;
 	}
-	return iterator;
+	return iterator->object;
 }
 
 process *PRIOP_tick(process *running_process) {
