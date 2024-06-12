@@ -14,26 +14,29 @@ int LCFS_startup() {
 
 process *LCFS_tick(process *running_process) {
   // Checks if process still got time left
-  if (running_process->time_left > 0) {
-    running_process->time_left--;
-    if (running_process->time_left > 0) {
-      return running_process;
-    } else {
-      free(running_process);
+  if (running_process == NULL || running_process->time_left == 0) {
+    if (LCFS_queue->next == NULL) {
+      return NULL;
     }
+
+    running_process = LCFS_queue->next->object;
+    queue_object *temp = LCFS_queue->next->next;
+    free(LCFS_queue->next);
+    LCFS_queue->next = temp;
+  }
+  if (running_process->time_left > 0) {
+    running_process->time_left -= 1;
   }
 
-  process *next_process = (process *)queue_poll(LCFS_queue);
-
-  return next_process;
+  return running_process;
 }
 
 process *LCFS_new_arrival(process *arriving_process, process *running_process) {
-  if (running_process) {
+  if (arriving_process != NULL) {
     queue_add(arriving_process, LCFS_queue);
   }
 
-  return arriving_process;
+  return running_process;
 }
 
 void LCFS_finish() {
