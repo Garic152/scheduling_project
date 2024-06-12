@@ -2,10 +2,9 @@
 #include <stdio.h>
 
 static queue_object *PRIOP_queue;
-//You can add more global variables here
+// You can add more global variables here
 
-void PRIOP_sort_queue()
-{
+void PRIOP_sort_queue() {
   if (PRIOP_queue->next == NULL || PRIOP_queue->next->next == NULL) {
     return;
   }
@@ -17,9 +16,8 @@ void PRIOP_sort_queue()
   while (current->next != NULL) {
     nextNode = current->next;
 
-    printf("\n%c, ((process *p)())");
-
-    if (((process *)(current->object))->priority > ((process *)(nextNode->object))->priority) {
+    if (((process *)(current->object))->priority >
+        ((process *)(nextNode->object))->priority) {
       prev->next = nextNode;
       current->next = nextNode->next;
       nextNode->next = current;
@@ -36,21 +34,22 @@ process *select_last() {
   if (PRIOP_queue->next == NULL) {
     return NULL;
   }
-	queue_object *iterator = PRIOP_queue->next;
-	while (iterator->next != NULL) {
-		iterator = iterator->next;
-	}
-	return iterator->object;
+  queue_object *iterator = PRIOP_queue;
+  while (iterator->next != NULL) {
+    iterator = iterator->next;
+  }
+  return iterator->object;
 }
 
 process *PRIOP_tick(process *running_process) {
-  PRIOP_sort_queue();
   if (running_process == NULL || running_process->time_left == 0) {
+    PRIOP_sort_queue();
     running_process = queue_poll(PRIOP_queue);
-  } else {
-  	running_process = select_last(PRIOP_queue);
+    if (running_process == NULL) {
+      return NULL;
+    }
   }
-  if (running_process != NULL) {
+  if (running_process->time_left > 0) {
     running_process->time_left -= 1;
   }
   return running_process;
@@ -64,15 +63,28 @@ int PRIOP_startup() {
   return 0;
 }
 
-process *PRIOP_new_arrival(process *arriving_process, process *running_process)
-{
-	if (arriving_process != NULL) {
-		queue_add(arriving_process, PRIOP_queue);
-	}
-	return running_process;
+process *PRIOP_new_arrival(process *arriving_process,
+                           process *running_process) {
+  if (arriving_process == NULL) {
+    return running_process;
+  }
+
+  if (running_process == NULL) {
+    return arriving_process;
+  }
+
+  if (arriving_process->priority > running_process->priority) {
+    queue_add(running_process, PRIOP_queue);
+    return arriving_process;
+  } else {
+    queue_add(arriving_process, PRIOP_queue);
+    return running_process;
+  }
 }
 
-void PRIOP_finish()
-{
-	// TODO
+void PRIOP_finish() {
+  if (PRIOP_queue != NULL) {
+    free_queue(PRIOP_queue);
+    PRIOP_queue = NULL;
+  }
 }
