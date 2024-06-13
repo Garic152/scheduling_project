@@ -30,6 +30,26 @@ uint8_t return_level(int number) {
   }
 }
 
+void print_queue() {
+  printf("-Printing Queues\n");
+
+  for (uint8_t level = 0; level < MAX_LEVEL; level++) {
+    printf("--Printing Level %u\n", level);
+    queue_object *MLF_queue = MLF_queues[level];
+    if (MLF_queue->next == NULL) {
+      printf("---Level %u is empty\n", level);
+    }
+
+    queue_object *iterator = MLF_queue->next;
+
+    while (iterator != NULL) {
+      printf("---%c, %d\n", ((process *)(iterator->object))->id,
+             ((process *)(iterator->object))->time_left);
+      iterator = iterator->next;
+    }
+  }
+}
+
 void MLF_sort_queue(queue_object *MLF_queue) {
   if (MLF_queue->next == NULL || MLF_queue->next->next == NULL) {
     return;
@@ -88,12 +108,15 @@ process *MLF_tick(process *running_process) {
   if (TIME >= QUANTUM) {
     if (QUANTUM == 8) {
     } else {
+      printf("-Calculated new level for %c: %u\n", running_process->id,
+             return_level(QUANTUM));
       queue_add(running_process, MLF_queues[return_level(QUANTUM)]);
       result = get_next_process();
       if (result.proc == NULL) {
         return NULL;
       }
       running_process = result.proc;
+      printf("-New process: %c\n", running_process->id);
       QUANTUM = basic_pow(2, result.level);
       TIME = 0;
     }
@@ -101,6 +124,12 @@ process *MLF_tick(process *running_process) {
 
   running_process->time_left -= 1;
   TIME += 1;
+
+  printf("\n\nAfter tick %u with quantum %u\n", TIME, QUANTUM);
+  print_queue();
+
+  printf("Time left for process %c is: %d\n", running_process->id,
+         running_process->time_left);
 
   return running_process;
 }
